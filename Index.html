@@ -444,13 +444,137 @@ F
     }
 
     // FILES
-    function handleFiles(files) {
-      Array.from(files).filter(f => f.type.startsWith('image/')).forEach(f => {
+// FILES
+    async function handleFiles(files) {
+      const allFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+      if (allFiles.length === 0) return;
+
+      // Show processing screen
+      document.getElementById('dropzone').style.display = 'none';
+      document.getElementById('processing-screen').style.display = 'block';
+      document.getElementById('upload-next').disabled = true;
+
+      const messages = [
+        'Finding the best moments...',
+        'Spotting happy expressions...',
+        'Identifying what\'s in each photo...',
+        'Sorting into categories...',
+        'Almost there...'
+      ];
+      const subs = [
+        'Scanning your photos for clear faces',
+        'Looking for smiles and open eyes',
+        'Vehicles, animals, outdoors and more',
+        'Building your personalised deck',
+        'Picking the very best shots'
+      ];
+
+      let msgIndex = 0;
+      const msgInterval = setInterval(() => {
+        if (msgIndex < messages.length - 1) msgIndex++;
+        document.getElementById('processing-title').textContent = messages[msgIndex];
+        document.getElementById('processing-sub').textContent = subs[msgIndex];
+      }, 2000);
+
+      // Process each photo
+      const results = [];
+      for (let i = 0; i < allFiles.length; i++) {
+        const file = allFiles[i];
+        const progress = Math.round(((i + 1) / allFiles.length) * 100);
+        document.getElementById('progress-bar').style.width = progress + '%';
+        document.getElementById('processing-count').textContent = `${i + 1} of ${allFiles.length} photos analysed`;
+
+        const base64 = await fileToBase64(file);
+        const url = URL.createObjectURL(file);
         const id = Math.random().toString(36).slice(2);
-        const url = URL.createObjectURL(f);
-        photos.push({ id, url });
+
+        try {
+          const response = await fetch('/.netlify/functions/analyze', {
+            method: 'POST',
+            body: JSON.stringify({ imageBase64: base64.split(',')[1] })
+          });
+          const data = await response.json();
+          const annotation = data.responses?.[0];
+          const labels = annotation?.labelAnnotations?.map(l => l.description.toLowerCase()) || [];
+          const hasFace = annotation?.faceAnnotations?.length > 0;
+          const faceScore = annotation?.faceAnnotations?.[0]?.detectionConfidence || 0;
+          const category = getCategory(labels, hasFace);
+
+          results.push({ id, url, labels, hasFace, faceScore, category, selected: true });
+          photos.push({ id, url });
+        } catch(e) {
+          results.push({ id, url, labels: [], hasFace: false, faceScore: 0, category: 'Other', selected: true });
+          photos.push({ id, url });
+        }
+      }
+
+      clearInterval(msgInterval);
+
+      // Sort by face score
+      results.sort((a, b) => b.faceScore - a.faceScore);
+
+      // Show results
+      document.getElementById('processing-screen').style.display = 'none';
+      document.getElementById('results-screen').style.display = 'block';
+      document.getElementById('results-title').textContent = `We found ${results.filter(r => r.hasFace).length} great shots across ${new Set(results.map(r => r.category)).size} categories`;
+
+      renderCategories(results);
+      document.getElementById('upload-next').disabled = false;
+    }
+
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
       });
-      renderGrid();
+    }
+
+    function getCategory(labels, hasFace) {
+      if (labels.some(l => ['dog','cat','animal','pet','bird','fish'].includes(l))) return '🐾 Animals';
+      if (labels.some(l => ['car','vehicle','truck','bus','bicycle','transport'].includes(l))) return '🚗 Vehicles';
+      if (labels.some(l => ['park','garden','tree','nature','outdoor','grass','beach','sea'].includes(l))) return '🌳 Outdoors';
+      if (labels.some(l => ['food','fruit','cake','meal','eating','drink'].includes(l))) return '🍎 Food';
+      if (labels.some(l => ['toy','ball','play','game'].includes(l))) return '🧸 Toys';
+      if (hasFace) return '😊 Family';
+      return '✨ Moments';
+    }
+
+    function renderCategories(results) {
+      const container = document.getElementById('categories-container');
+      container.innerHTML = '';
+      const categoryMap = {};
+      results.forEach(r => {
+        if (!categoryMap[r.category]) categoryMap[r.category] = [];
+        categoryMap[r.category].push(r);
+      });
+
+      Object.entries(categoryMap).forEach(([cat, items]) => {
+        const section = document.createElement('div');
+        section.style.marginBottom = '24px';
+        section.innerHTML = `<div style="font-size:13px;letter-spacing:0.1em;text-transform:uppercase;color:#8C7355;font-family:'Helvetica Neue',sans-serif;margin-bottom:12px;">${cat}</div>`;
+        const grid = document.createElement('div');
+        grid.className = 'photo-grid';
+        items.forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'photo-thumb' + (item.selected ? ' selected' : '');
+          div.onclick = () => {
+            item.selected = !item.selected;
+            div.className = 'photo-thumb' + (item.selected ? ' selected' : '');
+            if (item.selected) {
+              selected.push(item.id);
+            } else {
+              selected = selected.filter(x => x !== item.id);
+            }
+          };
+          div.innerHTML = `<img src="${item.url}" alt=""><div class="thumb-check" style="display:${item.selected?'flex':'none'}">✓</div>`;
+          if (item.selected) selected.push(item.id);
+          grid.appendChild(div);
+        });
+        section.appendChild(grid);
+        container.appendChild(section);
+      });
     }
 
     function renderGrid() {
