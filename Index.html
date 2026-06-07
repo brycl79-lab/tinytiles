@@ -283,16 +283,43 @@ F
     </div>
     <div class="step-content">
       <h2 class="step-title">Add your photos</h2>
-      <p class="step-sub">Upload 4–8 of your favourite moments. Clear faces work best.</p>
-      <div class="dropzone" onclick="document.getElementById('fileInput').click()">
+      <p class="step-sub">Upload everything — the more the better. Our AI will find the best moments automatically.</p>
+
+      <!-- DROPZONE -->
+      <div id="dropzone" class="dropzone" onclick="document.getElementById('fileInput').click()">
         <input type="file" id="fileInput" multiple accept="image/*" style="display:none" onchange="handleFiles(this.files)">
         <div class="drop-icon">⬆</div>
-        <div class="drop-text">Drop photos here or tap to browse</div>
-        <div class="drop-note">JPG, PNG, HEIC · Up to 20 photos</div>
+        <div class="drop-text">Drop all your photos here or tap to browse</div>
+        <div class="drop-note">The more you upload, the better the AI picks · JPG, PNG, HEIC</div>
       </div>
-      <div id="photo-grid" class="photo-grid"></div>
-      <div id="selection-note" class="selection-note" style="display:none"></div>
-      <button class="cta-btn" id="upload-next" disabled onclick="goTo('configure')">Next: Choose your game →</button>
+
+      <!-- PROCESSING SCREEN -->
+      <div id="processing-screen" style="display:none;text-align:center;padding:40px 24px;">
+        <div style="font-size:48px;margin-bottom:24px;">✦</div>
+        <h3 style="font-size:24px;color:#2C2416;font-weight:400;margin-bottom:12px;" id="processing-title">Finding the best moments...</h3>
+        <p style="font-size:15px;color:#6B5740;font-family:'Helvetica Neue',sans-serif;margin-bottom:32px;" id="processing-sub">Scanning your photos for clear faces and happy expressions</p>
+        <div style="background:#E8D5A3;border-radius:100px;height:6px;max-width:300px;margin:0 auto;">
+          <div id="progress-bar" style="background:#C9A84C;height:6px;border-radius:100px;width:0%;transition:width 0.3s;"></div>
+        </div>
+        <div style="margin-top:12px;font-size:13px;color:#8C7355;font-family:'Helvetica Neue',sans-serif;" id="processing-count"></div>
+      </div>
+
+      <!-- RESULTS -->
+      <div id="results-screen" style="display:none;">
+        <div style="background:#FAF5ED;border-radius:16px;padding:20px 24px;margin-bottom:24px;border:1px solid #E8D5A3;">
+          <div style="font-size:15px;font-weight:600;color:#2C2416;font-family:'Helvetica Neue',sans-serif;margin-bottom:4px;" id="results-title">We found your best shots</div>
+          <div style="font-size:13px;color:#6B5740;font-family:'Helvetica Neue',sans-serif;" id="results-sub">Tap to deselect any you don't want</div>
+        </div>
+
+        <!-- CATEGORIES -->
+        <div id="categories-container"></div>
+
+        <div id="selection-note" class="selection-note" style="display:none"></div>
+      </div>
+
+      <div id="photo-grid" class="photo-grid" style="display:none"></div>
+
+      <button class="cta-btn" id="upload-next" disabled onclick="goTo('configure')" style="margin-top:24px;">Next: Make it yours →</button>
     </div>
   </div>
 
