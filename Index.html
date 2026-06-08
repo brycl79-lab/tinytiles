@@ -499,7 +499,7 @@ F
           });
           const data = await response.json();
           const annotation = data.responses?.[0];
-          const labels = annotation?.labelAnnotations?.map(l => l.description.toLowerCase()) || [];
+          console.log('Labels for photo:', labels);
           const hasFace = annotation?.faceAnnotations?.length > 0;
           const faceScore = annotation?.faceAnnotations?.[0]?.detectionConfidence || 0;
           const category = getCategory(labels, hasFace);
