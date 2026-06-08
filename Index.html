@@ -287,7 +287,7 @@ F
       <p class="step-sub">Upload everything — the more the better. Our AI will find the best moments automatically.</p>
 
       <!-- DROPZONE -->
-      <div id="dropzone" class="dropzone" onclick="document.getElementById('fileInput').click()">
+      <button id="add-more-btn" style="display:none;background:none;border:1.5px solid #C9A84C;border-radius:100px;padding:10px 24px;font-size:14px;cursor:pointer;font-family:inherit;color:#C9A84C;margin-bottom:16px;width:100%;" onclick="document.getElementById('fileInput').click()">+ Add more photos</button>
         <input type="file" id="fileInput" multiple accept="image/*" style="display:none" onchange="handleFiles(this.files)">
         <div class="drop-icon">⬆</div>
         <div class="drop-text">Drop all your photos here or tap to browse</div>
@@ -451,7 +451,9 @@ F
       if (allFiles.length === 0) return;
 
       // Show processing screen
+      // Show processing screen
       document.getElementById('dropzone').style.display = 'none';
+      document.getElementById('add-more-btn').style.display = 'block';
       document.getElementById('processing-screen').style.display = 'block';
       document.getElementById('upload-next').disabled = true;
 
