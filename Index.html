@@ -535,14 +535,18 @@ F
       });
     }
 
-    function getCategory(labels, hasFace) {
-      if (labels.some(l => ['dog','cat','animal','pet','bird','fish'].includes(l))) return '🐾 Animals';
-      if (labels.some(l => ['car','vehicle','truck','bus','bicycle','transport'].includes(l))) return '🚗 Vehicles';
-      if (labels.some(l => ['park','garden','tree','nature','outdoor','grass','beach','sea'].includes(l))) return '🌳 Outdoors';
-      if (labels.some(l => ['food','fruit','cake','meal','eating','drink'].includes(l))) return '🍎 Food';
-      if (labels.some(l => ['toy','ball','play','game'].includes(l))) return '🧸 Toys';
-      if (hasFace) return '😊 Family';
-      return '✨ Moments';
+function getCategory(labels, hasFace) {
+      if (labels.some(l => ['dog','cat','animal','pet','bird','fish','puppy','kitten','rabbit','hamster','wildlife','mammal','fauna'].includes(l))) return '🐾 Animals';
+      if (labels.some(l => ['car','vehicle','truck','bus','bicycle','motorcycle','transport','train','airplane','boat','wheel','automotive','road','street'].includes(l))) return '🚗 Vehicles';
+      if (labels.some(l => ['park','garden','tree','nature','outdoor','grass','beach','sea','sky','cloud','flower','plant','forest','lake','mountain','sand','water','sunshine','field'].includes(l))) return '🌳 Outdoors';
+      if (labels.some(l => ['food','fruit','cake','meal','eating','drink','pizza','sandwich','ice cream','snack','cooking','kitchen','plate','cup','bottle','vegetable','bread'].includes(l))) return '🍎 Food & Drink';
+      if (labels.some(l => ['toy','ball','play','game','lego','teddy','doll','playground','swing','slide','blocks','puzzle','cartoon'].includes(l))) return '🧸 Playtime';
+      if (labels.some(l => ['book','reading','learning','drawing','painting','art','craft','pencil','paper','school'].includes(l))) return '📚 Learning';
+      if (labels.some(l => ['birthday','party','celebration','balloon','candle','gift','christmas','holiday','festival'].includes(l))) return '🎉 Celebrations';
+      if (labels.some(l => ['swimming','sport','running','dancing','exercise','football','jumping'].includes(l))) return '⚽ Active';
+      if (hasFace) return '😊 Family Moments';
+      if (labels.some(l => ['house','home','room','furniture','interior','sofa','bed','window'].includes(l))) return '🏠 At Home';
+      return '📸 Memories';
     }
 
     function renderCategories(results) {
